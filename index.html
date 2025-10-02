@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+        #attempts {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #888;
+        }
+        #hint {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ff9800;
+        }
+        #score {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #2196F3;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guess the Number!</h1>
+        <p>I'm thinking of a number between 1 and 100. Can you guess it?</p>
+        <input type="number" id="guess" min="1" max="100" placeholder="Your guess">
+        <button id="submit">Guess</button>
+        <div id="feedback"></div>
+        <div id="attempts">Attempts: 0</div>
+        <div id="hint"></div>
+        <div id="score"></div>
+    </div>
+
+    <script>
+        // Generate random number between 1 and 100
+        const secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        let previousGuess = null;
+
+        const guessInput = document.getElementById('guess');
+        const submitButton = document.getElementById('submit');
+        const feedback = document.getElementById('feedback');
+        const attemptsDisplay = document.getElementById('attempts');
+        const hint = document.getElementById('hint');
+        const score = document.getElementById('score');
+
+        submitButton.addEventListener('click', function() {
+            const userGuess = parseInt(guessInput.value);
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
+                feedback.textContent = 'Please enter a number between 1 and 100!';
+                feedback.style.color = 'red';
+                return;
+            }
+
+            attempts++;
+            attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+            if (userGuess === secretNumber) {
+                feedback.textContent = 'Congratulations! You guessed it right!';
+                feedback.style.color = 'green';
+                submitButton.disabled = true;
+                guessInput.disabled = true;
+
+                // Calculate score: higher score for fewer attempts (e.g., 100 - attempts * 5, min 0)
+                const calculatedScore = Math.max(100 - (attempts - 1) * 5, 0);
+                score.textContent = `Your score: ${calculatedScore}/100 (based on ${attempts} attempts)`;
+                score.style.display = 'block';
+                hint.textContent = '';
+            } else if (userGuess < secretNumber) {
+                feedback.textContent = 'Too low! Try a higher number.';
+                feedback.style.color = 'blue';
+            } else {
+                feedback.textContent = 'Too high! Try a lower number.';
+                feedback.style.color = 'blue';
+            }
+
+            // Stretch goal: Add hints after 3 attempts
+            if (attempts >= 3 && userGuess !== secretNumber) {
+                if (secretNumber % 2 === 0) {
+                    hint.textContent = 'Hint: The number is even.';
+                } else {
+                    hint.textContent = 'Hint: The number is odd.';
+                }
+            }
+
+            // Bonus hint: Warmer/colder based on previous guess
+            if (previousGuess !== null && userGuess !== secretNumber) {
+                const prevDiff = Math.abs(previousGuess - secretNumber);
+                const currDiff = Math.abs(userGuess - secretNumber);
+                if (currDiff < prevDiff) {
+                    hint.textContent += ' (Getting warmer!)';
+                } else if (currDiff > prevDiff) {
+                    hint.textContent += ' (Getting colder!)';
+                }
+            }
+
+            previousGuess = userGuess;
+            guessInput.value = '';
+            guessInput.focus();
+        });
+    </script>
+</body>
+</html>
